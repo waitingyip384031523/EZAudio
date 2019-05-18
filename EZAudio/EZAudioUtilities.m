@@ -286,6 +286,7 @@ BOOL __shouldExitOnCheckResultFail = YES;
 
 + (AudioStreamBasicDescription)stereoFloatInterleavedFormatWithSampleRate:(float)sampleRate
 {
+#if 0 // 这个库本身的代码 录wav格式直接出错 闪退
     AudioStreamBasicDescription asbd;
     UInt32 floatByteSize   = sizeof(float);
     asbd.mChannelsPerFrame = 2;
@@ -297,6 +298,21 @@ BOOL __shouldExitOnCheckResultFail = YES;
     asbd.mFormatID         = kAudioFormatLinearPCM;
     asbd.mSampleRate       = sampleRate;
     asbd.mReserved         = 0;
+    return asbd;
+#endif
+    
+    // 改用这种配置录出来就是wav格式
+    AudioStreamBasicDescription asbd;
+    memset(&asbd, 0, sizeof(asbd));
+    asbd.mSampleRate = 8000;            //采样率
+    asbd.mFormatID = kAudioFormatLinearPCM;
+    asbd.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+    asbd.mChannelsPerFrame = 1;         //单声道
+    asbd.mFramesPerPacket = 1;          //每一个packet一侦数据
+    asbd.mBitsPerChannel = 16;          //每个采样点16bit量化
+    asbd.mBytesPerFrame = (asbd.mBitsPerChannel / 8) * asbd.mChannelsPerFrame;
+    asbd.mBytesPerPacket = asbd.mBytesPerFrame ;
+    
     return asbd;
 }
 
